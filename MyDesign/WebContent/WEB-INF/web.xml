@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://java.sun.com/xml/ns/javaee" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" id="WebApp_ID" version="2.5">
+  <display-name>MyDesign</display-name>
+  <welcome-file-list>
+    <welcome-file>index.html</welcome-file>
+    <welcome-file>index.htm</welcome-file>
+    <welcome-file>index.jsp</welcome-file>
+    <welcome-file>default.html</welcome-file>
+    <welcome-file>default.htm</welcome-file>
+    <welcome-file>default.jsp</welcome-file>
+  </welcome-file-list>
+  <!-- 配置Struts -->
+  <filter>
+  	<filter-name>StrutsPrepareAndExecuteFilter</filter-name>
+  	<filter-class>org.apache.struts2.dispatcher.ng.filter.StrutsPrepareAndExecuteFilter</filter-class>
+  </filter>
+  <filter-mapping>
+  	<filter-name>StrutsPrepareAndExecuteFilter</filter-name>
+  	<url-pattern>/*</url-pattern>
+  </filter-mapping>
+  
+  <!-- 
+  	容器启动时 调用ContextLoaderListener 加载配置文件 但是不知道加载配置文件的名称是什么
+  	需要通知listener加载的配置文件名称
+   	contextConfigLocation 是监听器中加载的路径的key  我们只需要提供value即可 
+   	contextConfigLocation = classpath:applicationContext.xml(从根目录下开始查找)
+   	提供全局变量 将路径交给web容器
+   -->
+   <context-param>
+   	<param-name>contextConfigLocation</param-name>
+   	<param-value>classpath:applicationContext.xml</param-value>
+   </context-param>
+   
+  
+  <!-- 配置spring 需要在容器启动时候(创建servletContext对象) 加载applicationContext.xml 必须要导入整合包 spring-web  -->
+  <listener>
+  	<listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+  </listener>
+  
+  
+</web-app>

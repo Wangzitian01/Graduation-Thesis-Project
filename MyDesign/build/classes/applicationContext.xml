@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:aop="http://www.springframework.org/schema/aop"
+        xmlns:context="http://www.springframework.org/schema/context"
+        xmlns:tx="http://www.springframework.org/schema/tx" xsi:schemaLocation="
+        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
+        http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd"> <!-- bean definitions here -->
+	
+	
+	<!-- 加载根目录下的jdbc.properties文件  加载的目的是在xml中使用数据库的信息 -->
+	<context:property-placeholder location="classpath:jdbc.properties"/>
+	
+	
+	
+	<!-- 
+		1.整合hibernate 最终的目的是 hibernateTemplate模版对象 
+			hibernateTemplate 对象需要 数据源或者sessionFactory
+			${jdbc.url} 使用加载进来的配置信息 动态获得数据 
+	 -->
+	<bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource">
+		<property name="driverClass" value="${jdbc.driver}"></property>
+		<property name="jdbcUrl" value="${jdbc.url}"></property>
+		<property name="user" value="${jdbc.username}"></property>
+		<property name="password" value="${jdbc.password}"></property>
+	</bean>	
+	 
+	 
+	 <!-- 替换了 hibernate的配置文件 创建 session工厂 -->
+	 <bean id="sessionFactory" class="org.springframework.orm.hibernate5.LocalSessionFactoryBean">
+	 	<!-- 1.1基本四项 -->
+	 	<property name="dataSource" ref="dataSource"></property>
+	 	<!-- 1.2其他配置 -->
+	 	<property name="hibernateProperties">
+	 		<props >
+	 			<prop key="hibernate.dialect" >org.hibernate.dialect.MySQLDialect</prop>
+				<prop key="hibernate.show_sql" >true</prop>
+				<prop key="hibernate.format_sql" >true</prop>
+				<prop key="hibernate.hbm2ddl.auto" >update</prop>
+	 		</props>
+	 	</property>
+	 	<!-- 1.3扫描实体 使用注解 -->
+	 	<property name="packagesToScan">
+	 		<list>
+	 			<value>com.itheima.domain</value>
+	 		</list>
+	 	</property>
+	 </bean>
+	 
+	 <!-- spring提供的hibernate模版  模版需要注入session工厂  -->
+	 <bean id="hibernateTemplate" class="org.springframework.orm.hibernate5.HibernateTemplate">
+	 	<property name="sessionFactory" ref="sessionFactory"></property>
+	 </bean>
+	 
+	 
+	 
+	 
+	 
+	 
+	 
+	 
+	 
+	<!-- 2.事务 : 事务需要 sessionFactory  配置spring事务管理平台  事务需要连接 所以注入session工厂 -->
+	<bean id="transactionManager" class="org.springframework.orm.hibernate5.HibernateTransactionManager">
+		<property name="sessionFactory" ref="sessionFactory"></property>
+	</bean>
+	
+	
+	
+	<!-- 3.扫描包spring注解  -->
+	<context:component-scan base-package="com.itheima"></context:component-scan>
+	
+	
+	<!-- 4.事务注解驱动 -->
+	<tx:annotation-driven transaction-manager="transactionManager"/>
+	
+</beans>
